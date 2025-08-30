@@ -1,0 +1,206 @@
+# Silent Spiral 12D - Complete Project Requirements
+# Generated: 2025-08-30
+# 
+# This file contains all dependencies and requirements for the Silent Spiral 12D
+# mathematical visualization project. Use this for consistent environment setup.
+
+# ============================================================================
+# RUNTIME DEPENDENCIES (JavaScript/Node.js)
+# ============================================================================
+
+# Core 3D Graphics and WebGL
+three@^0.158.0              # Three.js - WebGL-based 3D graphics library
+                           # Used for: Point cloud rendering, camera controls, scene management
+
+# User Interface
+dat.gui@^0.7.9             # dat.GUI - Lightweight GUI controls
+                           # Used for: Parameter adjustment interface, preset selection
+
+# Mathematical Libraries  
+ml-pca@^4.1.1              # Machine Learning PCA - Principal Component Analysis
+                           # Used for: 12D to 3D dimensionality reduction, data projection
+
+# ============================================================================
+# DEVELOPMENT DEPENDENCIES
+# ============================================================================
+
+# Build System and Development Server
+vite@^4.0.0                # Vite - Fast development server and build tool
+                           # Used for: Hot reload, ES modules, production builds
+
+# ============================================================================
+# SYSTEM REQUIREMENTS
+# ============================================================================
+
+# Runtime Environment
+# Node.js >= 14.0.0         # JavaScript runtime for development tools
+# npm >= 6.0.0              # Package manager
+
+# Browser Support (Client-side)
+# Chrome >= 80               # WebGL 2.0 support required
+# Firefox >= 75              # ES2020 modules support
+# Safari >= 13               # Modern JavaScript features
+# Edge >= 80                 # Chromium-based Edge
+
+# WebGL Requirements
+# WebGL 2.0 support          # Essential for Three.js rendering
+# Hardware acceleration      # Recommended for performance
+
+# ============================================================================
+# DEVELOPMENT TOOLS (Optional but Recommended)
+# ============================================================================
+
+# Code Quality (Future additions)
+# eslint@^8.0.0            # JavaScript linting
+# prettier@^2.0.0          # Code formatting  
+# typescript@^5.0.0        # Type safety (planned migration)
+
+# Testing Framework (Future additions)
+# jest@^29.0.0             # Unit testing framework
+# @testing-library/dom     # DOM testing utilities
+
+# Performance and Analysis
+# webpack-bundle-analyzer   # Bundle size analysis
+# lighthouse               # Performance auditing
+
+# ============================================================================
+# INSTALLATION COMMANDS
+# ============================================================================
+
+# Primary Installation (use one of these):
+# npm install                          # Install from package.json
+# yarn install                         # Alternative package manager
+# pnpm install                         # Fast, disk-space efficient
+
+# Development Server:
+# npm run dev                          # Start development server (localhost:5173)
+# npm run build                        # Build for production
+# npm run serve                        # Preview production build
+
+# ============================================================================
+# DEPENDENCY DETAILS AND JUSTIFICATION
+# ============================================================================
+
+# THREE.JS (^0.158.0)
+# - Size: ~600KB minified
+# - License: MIT
+# - Purpose: Core 3D rendering, WebGL abstraction
+# - Critical: Yes - entire visualization depends on this
+# - Alternative: None suitable for this complexity
+
+# DAT.GUI (^0.7.9)  
+# - Size: ~50KB minified
+# - License: Apache-2.0
+# - Purpose: Real-time parameter controls
+# - Critical: Yes - primary user interface
+# - Alternative: Custom controls (much more development)
+
+# ML-PCA (^4.1.1)
+# - Size: ~30KB minified  
+# - License: MIT
+# - Purpose: Dimensionality reduction 12D -> 3D
+# - Critical: Yes - mathematical core functionality
+# - Alternative: Custom PCA implementation (complex)
+
+# VITE (^4.0.0)
+# - Size: Dev dependency only
+# - License: MIT
+# - Purpose: Development server, build system
+# - Critical: For development - Yes
+# - Alternative: Webpack, Rollup, Parcel
+
+# ============================================================================
+# SECURITY CONSIDERATIONS
+# ============================================================================
+
+# Known Vulnerabilities (as of 2025-08-30):
+# - vite: Uses esbuild <=0.24.2 with moderate security vulnerability
+# - Impact: Development server only, not production runtime
+# - Mitigation: Use npm audit fix --force for latest versions
+# - Risk Level: Low (development-only dependency)
+
+# Security Best Practices:
+# 1. Keep dependencies updated regularly
+# 2. Use npm audit to check for vulnerabilities
+# 3. Pin versions for production deployments
+# 4. Use package-lock.json for reproducible installs
+
+# ============================================================================
+# PERFORMANCE CHARACTERISTICS
+# ============================================================================
+
+# Bundle Sizes (approximate):
+# - Total production bundle: ~700KB minified + gzipped ~200KB
+# - three.js: ~85% of bundle size
+# - dat.gui + ml-pca: ~15% of bundle size
+# - Application code: Minimal impact
+
+# Runtime Performance:
+# - Memory usage: 50-500MB depending on point count
+# - CPU usage: GPU-accelerated rendering, minimal CPU load
+# - Network: Single bundle download, no runtime requests
+
+# ============================================================================
+# PLATFORM-SPECIFIC NOTES
+# ============================================================================
+
+# Windows:
+# - Use npm install (included with Node.js)
+# - PowerShell or Command Prompt recommended
+# - Windows Subsystem for Linux (WSL) compatible
+
+# macOS:
+# - Use npm install or homebrew for Node.js
+# - Terminal or iTerm2 recommended
+# - Xcode Command Line Tools may be required
+
+# Linux:
+# - Use distribution package manager for Node.js
+# - Or download from nodejs.org
+# - Build tools (gcc, make) may be required for some dependencies
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# Common Issues:
+
+# 1. "Module not found" errors:
+#    Solution: npm install
+#    Cause: Missing dependencies
+
+# 2. "Cannot find module 'three'" at runtime:
+#    Solution: Check import statements, rebuild
+#    Cause: Import/build system issues
+
+# 3. WebGL not supported:
+#    Solution: Update browser, enable hardware acceleration
+#    Cause: Browser/GPU compatibility
+
+# 4. Performance issues:
+#    Solution: Reduce point count, check GPU drivers
+#    Cause: Hardware limitations
+
+# 5. npm audit vulnerabilities:
+#    Solution: npm audit fix --force (may cause breaking changes)
+#    Cause: Outdated dependency versions
+
+# For more help, see:
+# - docs/ARCHITECTURE.md - Technical implementation details  
+# - docs/API.md - API reference and examples
+# - GitHub Issues - Community support and bug reports
+
+# ============================================================================
+# VERSION HISTORY
+# ============================================================================
+
+# v2.0.0 (Current):
+# - Fixed ml-pca version from ^1.1.7 to ^4.1.1
+# - Added comprehensive error handling
+# - Implemented configuration management system
+# - Added preset system for parameter exploration
+
+# v1.0.0 (Original):
+# - Basic three.js + dat.gui + ml-pca setup
+# - Simple parameter controls
+# - Basic 12D spiral visualization
