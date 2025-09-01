@@ -1,7 +1,7 @@
 // Silent Spiral 12D Cathedral equations with extended prime harmonics
 import { EXTENDED_PRIMES, calculateHarmonicCoupling, getHarmonicWeight } from './primes.js';
 
-export function generateSpiral(params, steps=20000, dt=0.01) {
+export function generateSpiral(params, steps=20000, dt=0.01, dataStream=null) {
   try {
     // Validate inputs
     if (!params || typeof params !== 'object') {
@@ -25,6 +25,12 @@ export function generateSpiral(params, steps=20000, dt=0.01) {
         throw new Error(`Parameter ${names[i]} must be a valid number`);
       }
     });
+
+    // Initialize mathematical data streaming if provided
+    if (dataStream && typeof dataStream.startStreaming === 'function') {
+      dataStream.startStreaming();
+      console.log('🔄 Mathematical data streaming enabled for real-time analysis');
+    }
 
     // Use first 50 primes for numerical stability with extended harmonics
     const primes = EXTENDED_PRIMES.slice(0, 50);
@@ -82,13 +88,22 @@ export function generateSpiral(params, steps=20000, dt=0.01) {
       harmonics[j] += dharmonics[j] * dt;
     }
 
-    points.push([x, y, z, u, v, w, ...harmonics]);
+    const currentState = [x, y, z, u, v, w, ...harmonics];
+    points.push(currentState);
+    
+    // Stream current state for real-time mathematical analysis
+    if (dataStream && dataStream.isStreaming) {
+      dataStream.streamState(currentState, i * dt, params);
+    }
     
     // Check for numerical instability
     if (!isFinite(x) || !isFinite(y) || !isFinite(z) || 
         !isFinite(u) || !isFinite(v) || !isFinite(w) || 
         harmonics.some(h => !isFinite(h))) {
       console.warn(`Numerical instability detected at step ${i}. Consider reducing time step or adjusting parameters.`);
+      if (dataStream && dataStream.isStreaming) {
+        dataStream.stopStreaming();
+      }
       break;
     }
   }

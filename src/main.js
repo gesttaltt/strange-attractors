@@ -1,27 +1,47 @@
 import { initScene, animate } from './visualization.js';
 import { setupControls } from './controls.js';
 import { StatusMonitor } from './statusMonitor.js';
+import { MathematicalDataPipeline } from './mathematics/mathDataPipeline.js';
+import { MathematicalAnalysisScheduler } from './mathematics/analysisScheduler.js';
+import { State56DMonitor } from './mathematics/stateVectorMonitor.js';
 import './analysis.js';
 import './e2eValidator.js';
 import './presetValidator.js';
 
 try {
-  // Initialize the 3D scene with lighting and controls
-  const { scene, camera, renderer, spiral, controls, ambientLight, directionalLight, rimLight, modeManager } = initScene();
+  console.log('🚀 Initializing Silent Spiral v2.0.0-stable with Phase 1 Mathematical Infrastructure...');
   
-  // Initialize status monitor for extended prime system
+  // Initialize mathematical infrastructure first
+  console.log('🧮 Phase 1: Setting up mathematical infrastructure...');
+  const mathDataPipeline = new MathematicalDataPipeline();
+  const mathAnalysisScheduler = new MathematicalAnalysisScheduler(mathDataPipeline);
+  const state56DMonitor = new State56DMonitor(mathDataPipeline);
+  
+  // Initialize the 3D scene with mathematical integration
+  const { scene, camera, renderer, spiral, controls, ambientLight, directionalLight, rimLight, modeManager } = initScene(mathDataPipeline);
+  
+  // Initialize status monitor with mathematical enhancements
   const statusMonitor = new StatusMonitor();
   
-  // Set up GUI controls (non-critical for basic visualization)
+  // Set up GUI controls with mathematical infrastructure
   try {
-    setupControls(spiral, controls, ambientLight, directionalLight, rimLight, modeManager);
+    setupControls(spiral, controls, ambientLight, directionalLight, rimLight, modeManager, mathDataPipeline, state56DMonitor);
   } catch (controlsError) {
     console.error('GUI controls failed to initialize:', controlsError);
     console.log('Application will continue without GUI controls');
   }
   
-  // Start animation loop with status monitoring
+  // Start mathematical analysis system
+  mathAnalysisScheduler.startScheduledAnalysis();
+  state56DMonitor.startMonitoring();
+  
+  // Start animation loop with mathematical monitoring
   animate(scene, camera, renderer, spiral, controls, statusMonitor);
+  
+  // Global access for mathematical debugging
+  window.mathPipeline = mathDataPipeline;
+  window.mathScheduler = mathAnalysisScheduler;
+  window.stateMonitor = state56DMonitor;
   
   // Auto-run diagnostics after a short delay to allow scene to settle
   setTimeout(() => {

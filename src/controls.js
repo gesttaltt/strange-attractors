@@ -33,7 +33,7 @@ function showErrorNotification(message) {
   }, 10000);
 }
 
-export function setupControls(spiral, controls, ambientLight, directionalLight, rimLight, modeManager){
+export function setupControls(spiral, controls, ambientLight, directionalLight, rimLight, modeManager, mathDataPipeline = null, state56DMonitor = null){
   const gui = new dat.GUI();
   
   // Add preset selector
@@ -103,7 +103,7 @@ export function setupControls(spiral, controls, ambientLight, directionalLight, 
       const currentParams = config.getAllParams();
       console.log('🔄 Updating spiral with params:', currentParams);
       
-      const points = generateSpiral(currentParams, currentParams.steps, currentParams.dt);
+      const points = generateSpiral(currentParams, currentParams.steps, currentParams.dt, mathDataPipeline);
       const {X,Y,Z,color,size,opacity} = projectSpiral(points);
       
       if (modeManager) {
@@ -219,8 +219,54 @@ export function setupControls(spiral, controls, ambientLight, directionalLight, 
   }};
   gui.add(resetController, 'reset');
 
-  // Prime Analysis Panel
-  const analysisFolder = gui.addFolder('Prime Harmonic Analysis');
+  // Mathematical Infrastructure Panel (Phase 1)
+  const mathFolder = gui.addFolder('Mathematical Infrastructure');
+  const mathController = {
+    streamingActive: false,
+    analysisFrequency: 30,
+    stateMonitorVisible: false,
+    
+    toggleStreaming: () => {
+      if (mathDataPipeline) {
+        if (mathController.streamingActive) {
+          mathDataPipeline.stopStreaming();
+          mathController.streamingActive = false;
+          console.log('⏹️ Mathematical data streaming stopped');
+        } else {
+          mathDataPipeline.startStreaming();
+          mathController.streamingActive = true;
+          console.log('🔄 Mathematical data streaming started');
+        }
+      }
+    },
+    
+    toggleStateMonitor: () => {
+      if (state56DMonitor) {
+        if (mathController.stateMonitorVisible) {
+          state56DMonitor.hide();
+          mathController.stateMonitorVisible = false;
+        } else {
+          state56DMonitor.show();
+          mathController.stateMonitorVisible = true;
+        }
+      }
+    },
+    
+    showPipelineStats: () => {
+      if (mathDataPipeline) {
+        const stats = mathDataPipeline.getStreamingStats();
+        console.log('📊 Mathematical Pipeline Statistics:', stats);
+      }
+    }
+  };
+  
+  mathFolder.add(mathController, 'toggleStreaming').name('🔄 Toggle Data Streaming');
+  mathFolder.add(mathController, 'toggleStateMonitor').name('📊 Toggle 56D Monitor');
+  mathFolder.add(mathController, 'showPipelineStats').name('📈 Pipeline Stats');
+  mathFolder.open();
+
+  // Prime Analysis Panel (Enhanced)
+  const analysisFolder = gui.addFolder('Mathematical Analysis');
   const analysisController = {
     harmonicCount: EXTENDED_PRIMES.slice(0, 50).length,
     maxPrime: EXTENDED_PRIMES[49],
@@ -237,12 +283,27 @@ export function setupControls(spiral, controls, ambientLight, directionalLight, 
       if (existingDisplay) {
         existingDisplay.remove();
       }
+    },
+    
+    showCurrentState: () => {
+      if (mathDataPipeline) {
+        const currentState = mathDataPipeline.getCurrentState();
+        if (currentState) {
+          console.log('📊 Current 56D State:', {
+            spatial: currentState.state.slice(0, 3),
+            velocity: currentState.state.slice(3, 6),
+            harmonics: currentState.state.slice(6, 16), // First 10 harmonics
+            time: currentState.time
+          });
+        }
+      }
     }
   };
   
   analysisFolder.add(analysisController, 'harmonicCount').name('Total Harmonics').listen();
   analysisFolder.add(analysisController, 'maxPrime').name('Highest Prime').listen();
   analysisFolder.add(analysisController, 'analyzeNow').name('🔬 Analyze Manifold');
+  analysisFolder.add(analysisController, 'showCurrentState').name('📊 Show Current State');
   analysisFolder.add(analysisController, 'clearAnalysis').name('Clear Results');
   analysisFolder.open();
 
@@ -262,7 +323,7 @@ export function setupControls(spiral, controls, ambientLight, directionalLight, 
           try {
             console.log(`🎨 Switching to ${mode} mode...`);
             const currentParams = config.getAllParams();
-            const points = generateSpiral(currentParams, currentParams.steps, currentParams.dt);
+            const points = generateSpiral(currentParams, currentParams.steps, currentParams.dt, mathDataPipeline);
             const {X,Y,Z,color,size,opacity} = projectSpiral(points);
             
             const colors = [];

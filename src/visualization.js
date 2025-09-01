@@ -5,7 +5,7 @@ import { projectSpiral } from './projection.js';
 import { config } from './config.js';
 import { VisualizationModeManager } from './visualizationModes.js';
 
-export function initScene() {
+export function initScene(mathDataPipeline = null) {
   const canvas = document.getElementById('spiral-canvas');
   if (!canvas) {
     throw new Error('Canvas element with id "spiral-canvas" not found');
@@ -65,7 +65,7 @@ export function initScene() {
     const params = config.getAllParams();
     console.log('📋 Using parameters:', params);
     
-    const points = generateSpiral(params, params.steps, params.dt);
+    const points = generateSpiral(params, params.steps, params.dt, mathDataPipeline);
     console.log(`📊 Generated ${points.length} spiral points with ${points[0]?.length || 0} dimensions`);
     
     const {X,Y,Z,color,size,opacity} = projectSpiral(points);
