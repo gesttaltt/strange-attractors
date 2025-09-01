@@ -1,4 +1,6 @@
-// Silent Spiral 12D Cathedral equations
+// Silent Spiral 12D Cathedral equations with extended prime harmonics
+import { EXTENDED_PRIMES, calculateHarmonicCoupling, getHarmonicWeight } from './primes.js';
+
 export function generateSpiral(params, steps=20000, dt=0.01) {
   try {
     // Validate inputs
@@ -24,7 +26,17 @@ export function generateSpiral(params, steps=20000, dt=0.01) {
       }
     });
 
-    let [x,y,z,u,v,w,h1,h2,h3,h4,h5,h6] = [0.1,0.1,0.1,0,0,0,0,0,0,0,0,0];
+    // Use first 50 primes for numerical stability with extended harmonics
+    const primes = EXTENDED_PRIMES.slice(0, 50);
+    const numHarmonics = primes.length;
+    
+    console.log(`🌀 Generating spiral with ${numHarmonics} prime harmonics (up to prime ${primes[primes.length-1]})`);
+    
+    // Harmonic amplitude scaling based on prime frequency
+    const harmonicScales = primes.map((prime, i) => getHarmonicWeight(prime, i, numHarmonics));
+    
+    let [x,y,z,u,v,w] = [0.1,0.1,0.1,0,0,0];
+    let harmonics = new Array(numHarmonics).fill(0);
     const points = [];
 
   for (let i=0; i<steps; i++) {
@@ -36,30 +48,46 @@ export function generateSpiral(params, steps=20000, dt=0.01) {
     const dy = v;
     const dz = w;
 
-    // Velocity updates
-    const du = -alpha*u + Math.cos(y)*v + phi_dot;
-    const dv = -beta*v + Math.cos(z)*w + phi_dot;
-    const dw = -gamma*w + Math.cos(x)*u + phi_dot;
+    // Advanced harmonic coupling with cross-frequency interactions (reduced strength)
+    const harmonicCoupling = calculateHarmonicCoupling(harmonics, primes, i * dt, 0.001);
+    
+    const du = -alpha*u + Math.cos(y)*v + phi_dot + harmonicCoupling;
+    const dv = -beta*v + Math.cos(z)*w + phi_dot + harmonicCoupling * 0.8;
+    const dw = -gamma*w + Math.cos(x)*u + phi_dot + harmonicCoupling * 1.2;
 
-    // Harmonics
-    const dh1 = Math.sin(2*Math.PI*phi) - delta*h1;
-    const dh2 = Math.cos(3*Math.PI*phi) - delta*h2;
-    const dh3 = Math.sin(5*Math.PI*phi) - delta*h3;
-    const dh4 = Math.cos(7*Math.PI*phi) - delta*h4;
-    const dh5 = Math.sin(11*Math.PI*phi) - delta*h5;
-    const dh6 = Math.cos(13*Math.PI*phi) - delta*h6;
+    // Optimized harmonic evolution with weighted scaling
+    const dharmonics = [];
+    for (let j = 0; j < numHarmonics; j++) {
+      const prime = primes[j];
+      const scale = harmonicScales[j];
+      const isEven = j % 2 === 0;
+      
+      // Phase-shifted harmonic oscillations
+      const phaseShift = (j * Math.PI) / numHarmonics;
+      const harmonicDriver = isEven ? 
+        Math.sin(prime * Math.PI * phi + phaseShift) : 
+        Math.cos(prime * Math.PI * phi + phaseShift);
+        
+      // Nonlinear coupling between harmonics (reduced)
+      const couplingTerm = j > 0 ? harmonics[j-1] * harmonics[j] * 0.0001 : 0;
+      
+      // Apply clamping to prevent numerical explosion
+      dharmonics[j] = Math.tanh(harmonicDriver * scale - delta * harmonics[j] + couplingTerm);
+    }
 
     // Euler step
     x += dx*dt; y += dy*dt; z += dz*dt;
     u += du*dt; v += dv*dt; w += dw*dt;
-    h1 += dh1*dt; h2 += dh2*dt; h3 += dh3*dt;
-    h4 += dh4*dt; h5 += dh5*dt; h6 += dh6*dt;
+    for (let j = 0; j < numHarmonics; j++) {
+      harmonics[j] += dharmonics[j] * dt;
+    }
 
-    points.push([x,y,z,u,v,w,h1,h2,h3,h4,h5,h6]);
+    points.push([x, y, z, u, v, w, ...harmonics]);
     
     // Check for numerical instability
     if (!isFinite(x) || !isFinite(y) || !isFinite(z) || 
-        !isFinite(u) || !isFinite(v) || !isFinite(w)) {
+        !isFinite(u) || !isFinite(v) || !isFinite(w) || 
+        harmonics.some(h => !isFinite(h))) {
       console.warn(`Numerical instability detected at step ${i}. Consider reducing time step or adjusting parameters.`);
       break;
     }

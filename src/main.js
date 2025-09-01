@@ -1,9 +1,16 @@
 import { initScene, animate } from './visualization.js';
 import { setupControls } from './controls.js';
+import { StatusMonitor } from './statusMonitor.js';
+import './analysis.js';
+import './e2eValidator.js';
+import './presetValidator.js';
 
 try {
   // Initialize the 3D scene with lighting and controls
   const { scene, camera, renderer, spiral, controls, ambientLight, directionalLight, rimLight, modeManager } = initScene();
+  
+  // Initialize status monitor for extended prime system
+  const statusMonitor = new StatusMonitor();
   
   // Set up GUI controls (non-critical for basic visualization)
   try {
@@ -13,8 +20,18 @@ try {
     console.log('Application will continue without GUI controls');
   }
   
-  // Start animation loop (critical for visualization)
-  animate(scene, camera, renderer, spiral, controls);
+  // Start animation loop with status monitoring
+  animate(scene, camera, renderer, spiral, controls, statusMonitor);
+  
+  // Auto-run diagnostics after a short delay to allow scene to settle
+  setTimeout(() => {
+    console.log('🔍 Auto-running spiral diagnostics...');
+    if (window.runSpiralDiagnostics) {
+      window.runSpiralDiagnostics().catch(err => {
+        console.error('Diagnostics failed:', err);
+      });
+    }
+  }, 2000);
   
 } catch (error) {
   console.error('Fatal error during application initialization:', error);

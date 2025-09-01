@@ -6,6 +6,12 @@ export class VisualizationModeManager {
     this.currentSpiral = spiral;
     this.currentMode = 'line';
     this.lastData = null;
+    this.harmonicCount = 0;
+    this.performanceMetrics = {
+      lastRenderTime: 0,
+      frameCount: 0,
+      harmonicDimensions: 0
+    };
   }
 
   createPointCloud(X, Y, Z, colors) {
@@ -106,13 +112,19 @@ export class VisualizationModeManager {
     }
   }
 
-  switchMode(mode, X, Y, Z, colors, size, opacity) {
-    // Remove current visualization
+  switchMode(mode, X, Y, Z, colors, size, opacity, harmonicData = null) {
+    const startTime = performance.now();
+    
+    // Remove current visualization with proper cleanup
     if (this.currentSpiral) {
       this.scene.remove(this.currentSpiral);
       this.currentSpiral.geometry?.dispose();
       this.currentSpiral.material?.dispose();
     }
+
+    // Update harmonic count for performance optimization
+    this.harmonicCount = harmonicData ? harmonicData.length : (X.length > 0 ? X[0].length - 6 : 0);
+    this.performanceMetrics.harmonicDimensions = this.harmonicCount;
 
     // Create new visualization based on mode
     let newSpiral;
@@ -124,22 +136,56 @@ export class VisualizationModeManager {
         newSpiral = this.createConnectedLine(X, Y, Z, colors);
         break;
       case 'tube':
-        newSpiral = this.createTubeGeometry(X, Y, Z, colors, size);
+        // For extended harmonics, limit tube complexity
+        if (this.harmonicCount > 50) {
+          console.log(`⚡ High harmonic count (${this.harmonicCount}), using optimized tube rendering`);
+          newSpiral = this.createOptimizedTube(X, Y, Z, colors, size);
+        } else {
+          newSpiral = this.createTubeGeometry(X, Y, Z, colors, size);
+        }
         break;
       default:
         newSpiral = this.createConnectedLine(X, Y, Z, colors);
         mode = 'line';
     }
 
-    // Store data for future updates
-    newSpiral.userData = { X, Y, Z, size, opacity, geometry: newSpiral.geometry };
+    // Store extended data for future updates
+    newSpiral.userData = { 
+      X, Y, Z, size, opacity, 
+      geometry: newSpiral.geometry,
+      harmonicCount: this.harmonicCount,
+      harmonicData: harmonicData
+    };
     
     // Add to scene
     this.scene.add(newSpiral);
     this.currentSpiral = newSpiral;
     this.currentMode = mode;
     
+    // Performance metrics
+    const renderTime = performance.now() - startTime;
+    this.performanceMetrics.lastRenderTime = renderTime;
+    this.performanceMetrics.frameCount++;
+    
+    if (renderTime > 100 || this.harmonicCount > 100) {
+      console.log(`🎨 Visualization updated: ${mode} mode, ${this.harmonicCount} harmonics, ${renderTime.toFixed(2)}ms`);
+    }
+    
     return newSpiral;
+  }
+
+  createOptimizedTube(X, Y, Z, colors, size) {
+    // Optimized tube for high harmonic counts - subsample for performance
+    const subsampleRate = Math.max(1, Math.floor(X.length / 1000));
+    const subsampledX = X.filter((_, i) => i % subsampleRate === 0);
+    const subsampledY = Y.filter((_, i) => i % subsampleRate === 0);
+    const subsampledZ = Z.filter((_, i) => i % subsampleRate === 0);
+    const subsampledColors = colors.filter((_, i) => Math.floor(i/3) % subsampleRate === 0);
+    const subsampledSize = size ? size.filter((_, i) => i % subsampleRate === 0) : null;
+    
+    console.log(`🔧 Subsampling: ${X.length} → ${subsampledX.length} points for tube rendering`);
+    
+    return this.createTubeGeometry(subsampledX, subsampledY, subsampledZ, subsampledColors, subsampledSize);
   }
 
   getCurrentMode() {
