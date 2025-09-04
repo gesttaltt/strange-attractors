@@ -1,6 +1,6 @@
 {
   "name": "silent-spiral-12d",
-  "version": "3.0.0-foundation",
+  "version": "2.0.0-stable",
   "private": true,
   "scripts": {
     "dev": "vite",

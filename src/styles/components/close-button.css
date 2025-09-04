@@ -1,0 +1,20 @@
+/* Close Button Styling - Focused on close button appearance */
+
+.gui-close-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: var(--close-button-size);
+  height: var(--close-button-size);
+  background: var(--danger-red);
+  color: var(--text-white);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.gui-close-button:hover {
+  background: var(--danger-red-hover);
+}

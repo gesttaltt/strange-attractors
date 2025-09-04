@@ -1,0 +1,20 @@
+/* CSS Variables - Foundation styling constants */
+
+:root {
+  /* Colors */
+  --primary-blue: #3498db;
+  --danger-red: #e74c3c;
+  --danger-red-hover: #c0392b;
+  --background-dark: rgba(0, 0, 0, 0.8);
+  --text-white: white;
+  
+  /* Layout */
+  --gui-top: 20px;
+  --gui-right: 20px;
+  --gui-z-index: 1000;
+  --border-radius: 8px;
+  --close-button-size: 20px;
+  
+  /* Typography */
+  --font-mono: 'Courier New', monospace;
+}

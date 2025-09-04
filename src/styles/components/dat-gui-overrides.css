@@ -1,0 +1,23 @@
+/* dat.GUI Overrides - Focused on dat.GUI specific styling */
+
+.simple-gui .dg .folder .title {
+  background: rgba(52, 152, 219, 0.2) !important;
+  color: var(--text-white) !important;
+  font-family: var(--font-mono) !important;
+}
+
+.simple-gui .dg .cr.function .property-name {
+  color: var(--text-white) !important;
+  font-family: var(--font-mono) !important;
+}
+
+.simple-gui .dg .cr.function .c {
+  background: var(--primary-blue) !important;
+  color: var(--text-white) !important;
+}
+
+.simple-gui .dg .cr.number input[type=text] {
+  background: var(--background-dark) !important;
+  color: var(--text-white) !important;
+  border: 1px solid var(--primary-blue) !important;
+}

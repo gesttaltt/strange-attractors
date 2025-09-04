@@ -29,13 +29,7 @@ export function projectSpiral(points) {
       Y = proj.map(p => p[1] * 10);
       Z = proj.map(p => p[2] * 10);
       
-      const minX = X.reduce((min, val) => Math.min(min, val), Infinity);
-      const maxX = X.reduce((max, val) => Math.max(max, val), -Infinity);
-      const minY = Y.reduce((min, val) => Math.min(min, val), Infinity);
-      const maxY = Y.reduce((max, val) => Math.max(max, val), -Infinity);
-      const minZ = Z.reduce((min, val) => Math.min(min, val), Infinity);
-      const maxZ = Z.reduce((max, val) => Math.max(max, val), -Infinity);
-      console.log(`✅ Projection complete. Coordinate ranges: X[${minX.toFixed(2)}, ${maxX.toFixed(2)}], Y[${minY.toFixed(2)}, ${maxY.toFixed(2)}], Z[${minZ.toFixed(2)}, ${maxZ.toFixed(2)}]`);
+      console.log(`✅ Projection complete. Coordinate ranges: X[${Math.min(...X).toFixed(2)}, ${Math.max(...X).toFixed(2)}], Y[${Math.min(...Y).toFixed(2)}, ${Math.max(...Y).toFixed(2)}], Z[${Math.min(...Z).toFixed(2)}, ${Math.max(...Z).toFixed(2)}]`);
       
     } else {
       // Standard PCA for lower dimensions

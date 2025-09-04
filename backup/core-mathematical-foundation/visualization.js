@@ -70,13 +70,7 @@ export function initScene(mathDataPipeline = null) {
     
     const {X,Y,Z,color,size,opacity} = projectSpiral(points);
     console.log(`📐 Projected to ${X?.length || 0} 3D points`);
-    const minX = X.reduce((min, val) => Math.min(min, val), Infinity);
-    const maxXVal = X.reduce((max, val) => Math.max(max, val), -Infinity);
-    const minY = Y.reduce((min, val) => Math.min(min, val), Infinity);
-    const maxYVal = Y.reduce((max, val) => Math.max(max, val), -Infinity);
-    const minZ = Z.reduce((min, val) => Math.min(min, val), Infinity);
-    const maxZVal = Z.reduce((max, val) => Math.max(max, val), -Infinity);
-    console.log(`📏 Coordinate ranges: X[${minX.toFixed(3)} to ${maxXVal.toFixed(3)}], Y[${minY.toFixed(3)} to ${maxYVal.toFixed(3)}], Z[${minZ.toFixed(3)} to ${maxZVal.toFixed(3)}]`);
+    console.log(`📏 Coordinate ranges: X[${Math.min(...X)?.toFixed(3)} to ${Math.max(...X)?.toFixed(3)}], Y[${Math.min(...Y)?.toFixed(3)} to ${Math.max(...Y)?.toFixed(3)}], Z[${Math.min(...Z)?.toFixed(3)} to ${Math.max(...Z)?.toFixed(3)}]`);
 
     // Prepare color array for visualization modes
     const colors = [];
@@ -90,11 +84,12 @@ export function initScene(mathDataPipeline = null) {
     spiral = modeManager.switchMode('line', X, Y, Z, colors, size, opacity);
     console.log('✅ Spiral visualization created and added to scene');
     
-    // Calculate bounding box for camera positioning (safe implementation)
-    const maxX = X.reduce((max, val) => Math.max(max, Math.abs(val)), 0);
-    const maxY = Y.reduce((max, val) => Math.max(max, Math.abs(val)), 0);
-    const maxZ = Z.reduce((max, val) => Math.max(max, Math.abs(val)), 0);
-    const maxCoord = Math.max(maxX, maxY, maxZ);
+    // Calculate bounding box for camera positioning
+    const maxCoord = Math.max(
+      Math.max(...X.map(Math.abs)),
+      Math.max(...Y.map(Math.abs)),
+      Math.max(...Z.map(Math.abs))
+    );
     console.log(`📏 Spiral bounding sphere radius: ${maxCoord.toFixed(3)}`);
     console.log(`📷 Camera distance: ${camera.position.length().toFixed(3)}`);
     console.log(`📍 Camera position: (${camera.position.x.toFixed(1)}, ${camera.position.y.toFixed(1)}, ${camera.position.z.toFixed(1)})`);

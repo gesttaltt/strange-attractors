@@ -1,0 +1,12 @@
+/* GUI Panel Styling - Focused on panel appearance */
+
+.simple-gui {
+  position: fixed;
+  top: var(--gui-top);
+  right: var(--gui-right);
+  z-index: var(--gui-z-index);
+  background: var(--background-dark);
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--border-radius);
+  font-family: var(--font-mono);
+}
