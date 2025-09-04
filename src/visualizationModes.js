@@ -23,6 +23,13 @@ export class VisualizationModeManager {
   }
 
   createPointCloud(X, Y, Z, colors, harmonicData = null) {
+    console.log('Creating sparkle point cloud:', {
+      points: X.length,
+      hasHarmonicData: !!harmonicData,
+      harmonicDataLength: harmonicData?.length,
+      sampleHarmonic: harmonicData?.[0]?.slice(0, 5)
+    });
+    
     const positions = [];
     const colorArray = [];
     const harmonicValues = [];
@@ -39,7 +46,7 @@ export class VisualizationModeManager {
         harmonicIndices.push(dominantHarmonic);
       } else {
         harmonicValues.push(0);
-        harmonicIndices.push(0);
+        harmonicIndices.push(i % 50); // Use index as fallback for color variation
       }
     }
 
@@ -49,10 +56,27 @@ export class VisualizationModeManager {
     geometry.setAttribute('harmonicValue', new THREE.Float32BufferAttribute(harmonicValues, 1));
     geometry.setAttribute('harmonicIndex', new THREE.Float32BufferAttribute(harmonicIndices, 1));
 
-    // Use beautiful shader material instead of basic PointsMaterial
-    const material = this.shaderMaterials.createHarmonicPointMaterial(this.harmonicTexture);
+    // Create shader material with error handling
+    let material;
+    try {
+      material = this.shaderMaterials.createHarmonicPointMaterial(this.harmonicTexture);
+      console.log('Sparkle shader material created successfully');
+    } catch (shaderError) {
+      console.error('Shader creation failed, using fallback material:', shaderError);
+      // Fallback to basic material if shader fails
+      material = new THREE.PointsMaterial({
+        vertexColors: true,
+        size: 4.0,
+        transparent: true,
+        opacity: 0.8,
+        sizeAttenuation: true
+      });
+    }
 
-    return new THREE.Points(geometry, material);
+    const pointsObject = new THREE.Points(geometry, material);
+    console.log('Points object created:', pointsObject);
+    
+    return pointsObject;
   }
   
   findDominantHarmonic(harmonics) {

@@ -67,13 +67,16 @@ export class MathematicalController {
       const visualData = this.regenerateSpiral();
       if (!visualData || !this.scene.modeManager) return false;
 
-      const { X, Y, Z, color, size, opacity } = visualData;
+      const { X, Y, Z, color, size, opacity, points } = visualData;
       const colors = [];
       for (let i = 0; i < X.length; i++) {
         colors.push((color[i][0] % 1 + 1) % 1, (color[i][1] % 1 + 1) % 1, (color[i][2] % 1 + 1) % 1);
       }
       
-      this.scene.modeManager.switchMode(mode, X, Y, Z, colors, size, opacity);
+      // Extract harmonic data for beautiful visualization
+      const harmonicData = points ? points.map(point => point.slice(6)) : null;
+      
+      this.scene.modeManager.switchMode(mode, X, Y, Z, colors, size, opacity, harmonicData);
       return true;
     } catch (error) {
       console.error('Visualization mode change failed:', error);

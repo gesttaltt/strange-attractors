@@ -10,7 +10,7 @@ export class ConfigManager {
     eta: 0.1,
     theta: 0.0,
     delta: 0.02, // Reduced for stability with extended harmonics
-    steps: 15000, // Increased for better convergence analysis
+    steps: 3000, // Optimized for beautiful sparkle visualization
     dt: 0.015 // Slightly reduced for numerical stability
   };
 

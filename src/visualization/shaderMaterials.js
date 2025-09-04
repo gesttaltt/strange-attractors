@@ -50,7 +50,7 @@ export class MathematicalShaderMaterials {
           float twinkle = 1.0 + sin(vHarmonicIndex * time * 5.0) * 0.3;
           float shimmer = 1.0 + sin(time * 8.0 + vHarmonicIndex) * 0.2;
           
-          gl_PointSize = size * sparkle * twinkle * shimmer * (3.0 + abs(vHarmonicValue) * 4.0);
+          gl_PointSize = size * sparkle * twinkle * shimmer * (6.0 + abs(vHarmonicValue) * 8.0);
           
           gl_Position = projectionMatrix * mvPosition;
         }
@@ -80,13 +80,13 @@ export class MathematicalShaderMaterials {
           float sparkleIntensity = 0.6 + sin(sparkleTime) * 0.4;
           float twinkle = 0.8 + sin(sparkleTime * 2.0) * 0.2;
           
-          // Dynamic color shifting for sparkle effect
-          float hue = mod(vHarmonicIndex * 137.5 + time * 30.0, 360.0) / 360.0;
-          float saturation = 0.9 + sin(time * 3.0) * 0.1;
-          float lightness = 0.5 + abs(vHarmonicValue) * 0.4 + sparkleIntensity * 0.3;
+          // Bright cyan/blue color scheme like reference image
+          float energy = abs(vHarmonicValue);
+          vec3 cyanBlue = vec3(0.0, 0.8 + energy * 0.2, 1.0); // Bright cyan
+          vec3 white = vec3(1.0, 1.0, 1.0); // Pure white for high energy
           
-          // HSL to RGB conversion
-          vec3 harmonicColor = hslToRgb(vec3(hue, saturation, lightness));
+          // Mix cyan and white based on harmonic energy
+          vec3 harmonicColor = mix(cyanBlue, white, energy * 0.7);
           
           // Combine patterns for intense sparkle light emission
           float sparkleGlow = max(star, cross) * sparkleIntensity * twinkle;
