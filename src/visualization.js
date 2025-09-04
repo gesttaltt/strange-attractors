@@ -145,15 +145,18 @@ export function initScene(mathDataPipeline = null) {
   return {scene, camera, renderer, spiral, controls, ambientLight, directionalLight, rimLight, modeManager};
 }
 
-export function animate(scene, camera, renderer, spiral, controls, statusMonitor = null) {
+export function animate(scene, camera, renderer, spiral, controls, modeManager = null) {
   let frameStart = performance.now();
   
   function render(time){
-    const renderStart = performance.now();
-    
     // Update orbit controls for smooth damping
     if (controls) {
       controls.update();
+    }
+    
+    // Update shader animations for beautiful mathematical effects
+    if (modeManager && modeManager.updateShaderAnimation) {
+      modeManager.updateShaderAnimation();
     }
     
     // Update spiral geometry if data exists (this is typically static, but kept for dynamic updates)
@@ -180,12 +183,7 @@ export function animate(scene, camera, renderer, spiral, controls, statusMonitor
     
     renderer.render(scene,camera);
     
-    // Update status monitor if available
-    if (statusMonitor && spiral.userData) {
-      const renderTime = performance.now() - renderStart;
-      const harmonicCount = spiral.userData.harmonicCount || 0;
-      statusMonitor.updateMetrics(harmonicCount, renderTime);
-    }
+    // Status monitoring removed - using clean architecture approach
     
     requestAnimationFrame(render);
   }
