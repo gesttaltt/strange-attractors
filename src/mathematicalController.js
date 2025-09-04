@@ -25,18 +25,21 @@ export class MathematicalController {
     }
   }
 
-  // Pure mathematical operation - update visualization
+  // Pure mathematical operation - update visualization with harmonic data
   updateVisualization(visualData) {
     try {
       if (!visualData || !this.scene.modeManager) return false;
 
-      const { X, Y, Z, color, size, opacity } = visualData;
+      const { X, Y, Z, color, size, opacity, points } = visualData;
       const colors = [];
       for (let i = 0; i < X.length; i++) {
         colors.push((color[i][0] % 1 + 1) % 1, (color[i][1] % 1 + 1) % 1, (color[i][2] % 1 + 1) % 1);
       }
       
-      const newSpiral = this.scene.modeManager.updateGeometry(X, Y, Z, colors, size, opacity);
+      // Extract harmonic data for beautiful visualization
+      const harmonicData = points ? points.map(point => point.slice(6)) : null;
+      
+      const newSpiral = this.scene.modeManager.updateGeometry(X, Y, Z, colors, size, opacity, harmonicData);
       Object.assign(this.scene.spiral, newSpiral);
       this.scene.spiral.userData = newSpiral.userData;
       

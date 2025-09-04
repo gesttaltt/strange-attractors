@@ -18,8 +18,8 @@ try {
   // Initialize clean GUI (presentation layer)
   const gui = new CleanGUI(mathController);
   
-  // Start animation loop  
-  animate(scene.scene, scene.camera, scene.renderer, scene.spiral, scene.controls);
+  // Start animation loop with shader animation support
+  animate(scene.scene, scene.camera, scene.renderer, scene.spiral, scene.controls, scene.modeManager);
   
   // Global access for mathematical framework
   window.config = config;

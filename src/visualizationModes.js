@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { MathematicalColors } from './visualization/mathematicalColors.js';
+import { MathematicalShaderMaterials } from './visualization/shaderMaterials.js';
 
 export class VisualizationModeManager {
   constructor(scene, spiral) {
@@ -12,51 +14,90 @@ export class VisualizationModeManager {
       frameCount: 0,
       harmonicDimensions: 0
     };
+    
+    // Initialize mathematical visualization systems
+    this.mathColors = new MathematicalColors();
+    this.shaderMaterials = new MathematicalShaderMaterials();
+    this.harmonicTexture = null;
+    this.clock = new THREE.Clock();
   }
 
-  createPointCloud(X, Y, Z, colors) {
+  createPointCloud(X, Y, Z, colors, harmonicData = null) {
     const positions = [];
     const colorArray = [];
+    const harmonicValues = [];
+    const harmonicIndices = [];
     
     for (let i = 0; i < X.length; i++) {
       positions.push(X[i], Y[i], Z[i]);
       colorArray.push(colors[3*i], colors[3*i+1], colors[3*i+2]);
+      
+      // Extract harmonic data for shader
+      if (harmonicData && harmonicData[i]) {
+        const dominantHarmonic = this.findDominantHarmonic(harmonicData[i]);
+        harmonicValues.push(harmonicData[i][dominantHarmonic] || 0);
+        harmonicIndices.push(dominantHarmonic);
+      } else {
+        harmonicValues.push(0);
+        harmonicIndices.push(0);
+      }
     }
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.Float32BufferAttribute(colorArray, 3));
+    geometry.setAttribute('harmonicValue', new THREE.Float32BufferAttribute(harmonicValues, 1));
+    geometry.setAttribute('harmonicIndex', new THREE.Float32BufferAttribute(harmonicIndices, 1));
 
-    const material = new THREE.PointsMaterial({
-      vertexColors: true,
-      size: 2.0,
-      transparent: true,
-      opacity: 0.8,
-      sizeAttenuation: true
-    });
+    // Use beautiful shader material instead of basic PointsMaterial
+    const material = this.shaderMaterials.createHarmonicPointMaterial(this.harmonicTexture);
 
     return new THREE.Points(geometry, material);
   }
+  
+  findDominantHarmonic(harmonics) {
+    if (!harmonics || harmonics.length === 0) return 0;
+    
+    let maxAmplitude = 0;
+    let dominantIndex = 0;
+    
+    for (let i = 0; i < harmonics.length; i++) {
+      const amplitude = Math.abs(harmonics[i]);
+      if (amplitude > maxAmplitude) {
+        maxAmplitude = amplitude;
+        dominantIndex = i;
+      }
+    }
+    
+    return dominantIndex;
+  }
 
-  createConnectedLine(X, Y, Z, colors) {
+  createConnectedLine(X, Y, Z, colors, harmonicData = null) {
     const positions = [];
-    const colorArray = [];
+    const harmonicColors = [];
     
     for (let i = 0; i < X.length; i++) {
       positions.push(X[i], Y[i], Z[i]);
-      colorArray.push(colors[3*i], colors[3*i+1], colors[3*i+2]);
+      
+      // Enhanced harmonic color mapping
+      if (harmonicData && harmonicData[i]) {
+        const harmonicColor = this.mathColors.getHarmonicColor(
+          harmonicData[i][0] || 0,
+          i,
+          0
+        );
+        harmonicColors.push(harmonicColor.r, harmonicColor.g, harmonicColor.b);
+      } else {
+        harmonicColors.push(colors[3*i], colors[3*i+1], colors[3*i+2]);
+      }
     }
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colorArray, 3));
+    geometry.setAttribute('harmonicColor', new THREE.Float32BufferAttribute(harmonicColors, 3));
 
-    const material = new THREE.LineBasicMaterial({
-      vertexColors: true,
-      linewidth: 2,
-      transparent: true,
-      opacity: 0.8
-    });
+    // Use beautiful shader material for enhanced line visualization
+    const material = this.shaderMaterials.createHarmonicLineMaterial();
 
     return new THREE.Line(geometry, material);
   }
@@ -96,14 +137,8 @@ export class VisualizationModeManager {
         );
       }
 
-      const material = new THREE.MeshPhongMaterial({
-        vertexColors: false,
-        color: 0xffffff,
-        shininess: 30,
-        transparent: true,
-        opacity: 0.9,
-        side: THREE.DoubleSide
-      });
+      // Use beautiful shader material for enhanced tube visualization
+      const material = this.shaderMaterials.createHarmonicTubeMaterial();
 
       return new THREE.Mesh(geometry, material);
     } catch (error) {
@@ -130,22 +165,22 @@ export class VisualizationModeManager {
     let newSpiral;
     switch (mode) {
       case 'points':
-        newSpiral = this.createPointCloud(X, Y, Z, colors);
+        newSpiral = this.createPointCloud(X, Y, Z, colors, harmonicData);
         break;
       case 'line':
-        newSpiral = this.createConnectedLine(X, Y, Z, colors);
+        newSpiral = this.createConnectedLine(X, Y, Z, colors, harmonicData);
         break;
       case 'tube':
         // For extended harmonics, limit tube complexity
         if (this.harmonicCount > 50) {
-          console.log(`⚡ High harmonic count (${this.harmonicCount}), using optimized tube rendering`);
-          newSpiral = this.createOptimizedTube(X, Y, Z, colors, size);
+          console.log('High harmonic count, using optimized tube rendering');
+          newSpiral = this.createOptimizedTube(X, Y, Z, colors, size, harmonicData);
         } else {
-          newSpiral = this.createTubeGeometry(X, Y, Z, colors, size);
+          newSpiral = this.createTubeGeometry(X, Y, Z, colors, size, harmonicData);
         }
         break;
       default:
-        newSpiral = this.createConnectedLine(X, Y, Z, colors);
+        newSpiral = this.createConnectedLine(X, Y, Z, colors, harmonicData);
         mode = 'line';
     }
 
@@ -192,8 +227,24 @@ export class VisualizationModeManager {
     return this.currentMode;
   }
 
-  updateGeometry(X, Y, Z, colors, size, opacity) {
-    // Update the current visualization with new data
-    return this.switchMode(this.currentMode, X, Y, Z, colors, size, opacity);
+  updateGeometry(X, Y, Z, colors, size, opacity, harmonicData = null) {
+    // Update the current visualization with new data and harmonic information
+    return this.switchMode(this.currentMode, X, Y, Z, colors, size, opacity, harmonicData);
+  }
+
+  // Update shader materials with time for animation
+  updateShaderAnimation() {
+    const deltaTime = this.clock.getDelta();
+    this.shaderMaterials.updateMaterials(deltaTime);
+  }
+
+  // Clean up resources
+  destroy() {
+    if (this.shaderMaterials) {
+      this.shaderMaterials.dispose();
+    }
+    if (this.harmonicTexture) {
+      this.harmonicTexture.dispose();
+    }
   }
 }
