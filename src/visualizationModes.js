@@ -168,17 +168,6 @@ export class VisualizationModeManager {
         newSpiral = this.createPointCloud(X, Y, Z, colors, harmonicData);
         break;
       case 'line':
-        newSpiral = this.createConnectedLine(X, Y, Z, colors, harmonicData);
-        break;
-      case 'tube':
-        // For extended harmonics, limit tube complexity
-        if (this.harmonicCount > 50) {
-          console.log('High harmonic count, using optimized tube rendering');
-          newSpiral = this.createOptimizedTube(X, Y, Z, colors, size, harmonicData);
-        } else {
-          newSpiral = this.createTubeGeometry(X, Y, Z, colors, size, harmonicData);
-        }
-        break;
       default:
         newSpiral = this.createConnectedLine(X, Y, Z, colors, harmonicData);
         mode = 'line';

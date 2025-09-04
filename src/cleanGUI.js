@@ -97,7 +97,7 @@ export class CleanGUI {
     const vizFolder = this.gui.addFolder('Visualization');
     const vizController = { mode: 'line' };
     
-    vizFolder.add(vizController, 'mode', ['points', 'line', 'tube'])
+    vizFolder.add(vizController, 'mode', ['points', 'line'])
       .name('Render Mode')
       .onChange((mode) => this.handleVisualizationChange(mode));
   }

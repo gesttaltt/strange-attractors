@@ -36,16 +36,21 @@ export class MathematicalShaderMaterials {
         uniform float size;
         varying float vHarmonicValue;
         varying float vHarmonicIndex;
+        varying vec3 vPosition;
         
         void main() {
           vHarmonicValue = harmonicValue;
           vHarmonicIndex = harmonicIndex;
+          vPosition = position;
           
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           
-          // Pulsing size based on harmonic frequency
-          float pulse = 1.0 + sin(vHarmonicIndex * time * 0.5 + vHarmonicValue * 10.0) * 0.3;
-          gl_PointSize = size * pulse * (1.0 + abs(vHarmonicValue));
+          // Enhanced sparkle pulsing with multiple frequencies
+          float sparkle = 1.0 + sin(vHarmonicIndex * time * 2.0 + vHarmonicValue * 15.0) * 0.5;
+          float twinkle = 1.0 + sin(vHarmonicIndex * time * 5.0) * 0.3;
+          float shimmer = 1.0 + sin(time * 8.0 + vHarmonicIndex) * 0.2;
+          
+          gl_PointSize = size * sparkle * twinkle * shimmer * (3.0 + abs(vHarmonicValue) * 4.0);
           
           gl_Position = projectionMatrix * mvPosition;
         }
@@ -55,28 +60,44 @@ export class MathematicalShaderMaterials {
         uniform float time;
         varying float vHarmonicValue;
         varying float vHarmonicIndex;
+        varying vec3 vPosition;
         
         void main() {
           vec2 uv = gl_PointCoord;
-          float dist = distance(uv, vec2(0.5));
-          if (dist > 0.5) discard;
+          vec2 center = vec2(0.5);
+          float dist = distance(uv, center);
           
-          // Mathematical color based on golden angle distribution
-          float hue = mod(vHarmonicIndex * 137.5, 360.0) / 360.0;
-          float saturation = 0.8;
-          float lightness = 0.3 + abs(vHarmonicValue) * 0.4;
+          // Enhanced sparkle star pattern for light emission
+          float star = 1.0 / (1.0 + pow(dist * 10.0, 2.0));
+          
+          // Add bright cross sparkle pattern
+          float crossH = exp(-pow((uv.x - 0.5) * 25.0, 2.0));
+          float crossV = exp(-pow((uv.y - 0.5) * 25.0, 2.0));
+          float cross = max(crossH, crossV) * 0.8;
+          
+          // Enhanced mathematical sparkle timing
+          float sparkleTime = time * 4.0 + vHarmonicIndex * 0.3;
+          float sparkleIntensity = 0.6 + sin(sparkleTime) * 0.4;
+          float twinkle = 0.8 + sin(sparkleTime * 2.0) * 0.2;
+          
+          // Dynamic color shifting for sparkle effect
+          float hue = mod(vHarmonicIndex * 137.5 + time * 30.0, 360.0) / 360.0;
+          float saturation = 0.9 + sin(time * 3.0) * 0.1;
+          float lightness = 0.5 + abs(vHarmonicValue) * 0.4 + sparkleIntensity * 0.3;
           
           // HSL to RGB conversion
           vec3 harmonicColor = hslToRgb(vec3(hue, saturation, lightness));
           
-          // Soft circular glow
-          float glow = 1.0 - smoothstep(0.0, 0.5, dist);
-          glow = pow(glow, 2.0);
+          // Combine patterns for intense sparkle light emission
+          float sparkleGlow = max(star, cross) * sparkleIntensity * twinkle;
           
-          // Add harmonic pulsing
-          float pulse = 0.8 + sin(vHarmonicValue * 20.0 + time) * 0.2;
+          // Bright light emission effect
+          harmonicColor *= (2.0 + sparkleGlow * 2.0);
           
-          gl_FragColor = vec4(harmonicColor * glow * pulse, glow);
+          // Enhanced alpha for better light emission
+          float alpha = sparkleGlow * (0.8 + abs(vHarmonicValue));
+          
+          gl_FragColor = vec4(harmonicColor, alpha);
         }
         
         // HSL to RGB conversion function
