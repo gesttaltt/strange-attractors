@@ -543,4 +543,261 @@ function safeSpiral() {
 }
 ```
 
-This API provides a robust foundation for mathematical visualization with comprehensive error handling, parameter validation, and extensible architecture.
+## NASA Integration API
+
+### `NASADataService` Class
+
+The `NASADataService` provides interface to NASA data through the NASA MCP server.
+
+#### Constructor
+```javascript
+new NASADataService()
+```
+Creates a new NASA data service with default configuration.
+
+#### Connection Methods
+
+##### `connect(serverUrl)`
+```javascript
+connect(serverUrl?: string): Promise<boolean>
+```
+**Parameters:**
+- `serverUrl`: NASA MCP server URL (default: 'http://localhost:3000')
+
+**Returns:** Promise resolving to connection success
+
+**Example:**
+```javascript
+const success = await nasaDataService.connect('http://localhost:3000');
+if (success) {
+  console.log('Connected to NASA MCP server');
+}
+```
+
+#### Data Fetching Methods
+
+##### `fetchAPOD(date)`
+```javascript
+fetchAPOD(date?: string): Promise<object>
+```
+**Parameters:**
+- `date`: Date in YYYY-MM-DD format (optional, defaults to today)
+
+**Returns:** APOD data object:
+```javascript
+{
+  title: string,
+  explanation: string,
+  url: string,
+  date: string
+}
+```
+
+##### `fetchMarsRoverPhotos(sol, rover)`
+```javascript
+fetchMarsRoverPhotos(sol?: number, rover?: string): Promise<object>
+```
+**Parameters:**
+- `sol`: Mars Sol (day) number (optional)
+- `rover`: Rover name - 'curiosity', 'opportunity', 'spirit' (default: 'curiosity')
+
+**Returns:** Mars rover data object with photos array
+
+##### `fetchNearEarthObjects(startDate, endDate)`
+```javascript
+fetchNearEarthObjects(startDate?: string, endDate?: string): Promise<object>
+```
+**Parameters:**
+- `startDate`: Start date in YYYY-MM-DD format (optional)
+- `endDate`: End date in YYYY-MM-DD format (optional)
+
+**Returns:** Near Earth Objects data with orbital information
+
+##### `fetchSpaceWeatherData()`
+```javascript
+fetchSpaceWeatherData(): Promise<object>
+```
+**Returns:** Current space weather data including solar activity
+
+#### Data Transformation Methods
+
+##### `transformAPODToCoordinates(apodData)`
+```javascript
+transformAPODToCoordinates(apodData: object): number[][]
+```
+**Parameters:**
+- `apodData`: APOD data object from fetchAPOD()
+
+**Returns:** Array of 12D coordinate arrays for mathematical visualization
+
+**Algorithm:** Converts title characters to harmonic coordinates using character codes and trigonometric functions
+
+##### `transformNEOToCoordinates(neoData)`
+```javascript
+transformNEOToCoordinates(neoData: object): number[][]
+```
+**Parameters:**
+- `neoData`: Near Earth Objects data from fetchNearEarthObjects()
+
+**Returns:** Array of 12D coordinates representing asteroid properties
+
+**Algorithm:** Maps distance, velocity, and diameter to 12D space with orbital mechanics
+
+##### `transformMarsPhotosToCoordinates(marsData)`
+```javascript
+transformMarsPhotosToCoordinates(marsData: object): number[][]
+```
+**Parameters:**
+- `marsData`: Mars rover data from fetchMarsRoverPhotos()
+
+**Returns:** Array of 12D coordinates representing mission timeline and camera data
+
+### `NASAVisualizationModes` Class
+
+The `NASAVisualizationModes` creates specialized visualizations for NASA data.
+
+#### Constructor
+```javascript
+new NASAVisualizationModes(scene: THREE.Scene, modeManager: VisualizationModeManager)
+```
+
+#### Visualization Methods
+
+##### `switchToNASAMode(nasaType, ...params)`
+```javascript
+switchToNASAMode(nasaType: string, ...params: any[]): Promise<THREE.Object3D>
+```
+**Parameters:**
+- `nasaType`: Type of NASA data - 'apod', 'mars', 'asteroids', 'spaceWeather'
+- `...params`: Type-specific parameters
+
+**NASA Type Parameters:**
+- `'apod'`: date (optional)
+- `'mars'`: sol, rover (optional)
+- `'asteroids'`: startDate, endDate (optional)
+- `'spaceWeather'`: none
+
+**Returns:** Promise resolving to Three.js visualization object
+
+##### `createAPODVisualization(date)`
+```javascript
+createAPODVisualization(date?: string): Promise<THREE.Object3D>
+```
+Creates cosmic point cloud visualization from APOD data with harmonic color mapping.
+
+##### `createMarsRoverVisualization(sol, rover)`
+```javascript
+createMarsRoverVisualization(sol?: number, rover?: string): Promise<THREE.Object3D>
+```
+Creates Mars-themed visualization with red planet color palette.
+
+##### `createAsteroidVisualization(startDate, endDate)`
+```javascript
+createAsteroidVisualization(startDate?: string, endDate?: string): Promise<THREE.Object3D>
+```
+Creates asteroid field visualization with velocity/distance-based styling.
+
+#### Animation Methods
+
+##### `updateNASAAnimation()`
+```javascript
+updateNASAAnimation(): void
+```
+Updates NASA visualization animations including rotation and pulsing effects.
+
+#### Utility Methods
+
+##### `getCachedNASAData(type)`
+```javascript
+getCachedNASAData(type: string): object | null
+```
+**Parameters:**
+- `type`: Data type - 'apod', 'mars', 'asteroids'
+
+**Returns:** Cached data or null if not cached
+
+##### `clearNASACache()`
+```javascript
+clearNASACache(): void
+```
+Clears all cached NASA data.
+
+##### `dispose()`
+```javascript
+dispose(): void
+```
+Cleans up NASA visualizations and releases GPU resources.
+
+### Enhanced GUI Methods
+
+The `CleanGUI` class now includes NASA-specific controls:
+
+##### `handleNASAConnect()`
+```javascript
+handleNASAConnect(): Promise<void>
+```
+Tests connection to NASA MCP server and provides user feedback.
+
+##### `handleNASAFetchAndVisualize()`
+```javascript
+handleNASAFetchAndVisualize(): Promise<void>
+```
+Fetches NASA data based on current settings and creates visualization.
+
+##### `handleNASAClear()`
+```javascript
+handleNASAClear(): void
+```
+Removes current NASA visualization from scene.
+
+## NASA Integration Usage Examples
+
+### Complete APOD Workflow
+```javascript
+import { nasaDataService } from './nasaDataService.js';
+import { NASAVisualizationModes } from './nasaVisualizationModes.js';
+
+// Setup
+const nasaViz = new NASAVisualizationModes(scene, modeManager);
+
+// Connect and visualize
+await nasaDataService.connect();
+const visualization = await nasaViz.switchToNASAMode('apod', '2024-01-01');
+```
+
+### Mars Rover Timeline Visualization
+```javascript
+// Visualize Curiosity rover Sol 1000 data
+const marsViz = await nasaViz.switchToNASAMode('mars', 1000, 'curiosity');
+
+// The visualization shows mission timeline as radius
+// Camera data as harmonic components
+// Earth date cycles as Z-axis variation
+```
+
+### Asteroid Approach Visualization
+```javascript
+// Visualize asteroids approaching Earth in January 2024
+const asteroidViz = await nasaViz.switchToNASAMode('asteroids', '2024-01-01', '2024-01-31');
+
+// Distance from Earth mapped to radius
+// Velocity mapped to color intensity
+// Size mapped to point scale
+```
+
+### Error Handling with NASA Data
+```javascript
+try {
+  await nasaDataService.connect('http://localhost:3000');
+  const viz = await nasaViz.switchToNASAMode('apod');
+  
+  if (viz) {
+    console.log('NASA visualization created successfully');
+  }
+} catch (error) {
+  console.error('NASA integration failed:', error);
+  // Falls back to mathematical visualization mode
+}
+```
+
+This API provides a robust foundation for both mathematical visualization and NASA data integration with comprehensive error handling, parameter validation, and extensible architecture.

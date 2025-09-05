@@ -62,10 +62,29 @@ The 12D trajectory is projected to 3D space using Principal Component Analysis (
 
 ## Features
 
-### Real-time Interactive Controls
-- **Parameter adjustment**: Live modification of all system parameters via GUI
-- **Real-time visualization**: Instantaneous updates to spiral geometry
-- **Dynamic rotation**: Automatic 3D rotation for enhanced spatial perception
+### Mathematical Visualization
+- **Real-time 3D Visualization**: Interactive point clouds, lines, and volumetric tubes
+- **12-Dimensional Mathematics**: Complex dynamical system with harmonic oscillators
+- **Advanced Projection**: Principal Component Analysis (PCA) for 12D → 3D mapping
+- **Interactive Controls**: Parameter adjustment with real-time visualization updates
+- **Multiple Visualization Modes**: Points, connected lines, and 3D tubes with variable radius
+- **Performance Optimized**: Handles up to 50,000 points with smooth 60fps animation
+- **Mathematical Rigor**: Comprehensive error handling and numerical stability monitoring
+
+### NASA Data Integration 🚀
+- **Real-time NASA Data**: Live integration with NASA's public APIs via MCP server
+- **Multi-source Support**: APOD, Mars rover photos, Near Earth Objects, space weather
+- **Astronomical Visualizations**: Transform NASA data into 12D mathematical coordinates
+- **Themed Renderings**: Cosmic, Martian, and asteroid-field visualization modes
+- **Interactive NASA Controls**: Integrated GUI for NASA data source selection and parameters
+- **Smart Caching**: 5-minute cache system for optimal performance and API rate limits
+- **Offline Fallbacks**: Synthetic data ensures functionality without internet connection
+
+### Professional Interface
+- **Clean UI**: Organized dat.gui interface with presets and advanced settings
+- **NASA Integration Panel**: Dedicated controls for space data visualization
+- **Connection Testing**: Real-time NASA MCP server validation
+- **Error Handling**: User-friendly feedback for connection and data issues
 
 ### Advanced Visualization
 - **Point cloud rendering**: High-performance WebGL-based particle system
@@ -75,7 +94,7 @@ The 12D trajectory is projected to 3D space using Principal Component Analysis (
 
 ### Mathematical Precision
 - **Numerical integration**: Euler method with configurable step size
-- **High resolution**: Up to 20,000 trajectory points for detailed structures
+- **High resolution**: Up to 50,000 trajectory points for detailed structures
 - **PCA projection**: Mathematically rigorous dimensional reduction
 - **Floating-point precision**: 32-bit precision for all calculations
 
@@ -130,8 +149,9 @@ The 12D trajectory is projected to 3D space using Principal Component Analysis (
 ### Prerequisites
 - Node.js (v14 or higher)
 - Modern web browser with WebGL support
+- NASA API key (free registration at [api.nasa.gov](https://api.nasa.gov)) for NASA data integration
 
-### Quick Installation
+### Silent Spiral Installation
 
 **Option 1: Automated Installation (Recommended)**
 ```bash
@@ -155,6 +175,34 @@ npm install
 # Check for security issues (optional)
 npm audit
 ```
+
+### NASA Data Integration Setup
+
+To enable NASA data visualization features, you'll need to set up the NASA MCP server:
+
+**Option 1: Quick Start (npx)**
+```bash
+# Get your free NASA API key from https://api.nasa.gov
+export NASA_API_KEY=your_api_key_here
+
+# Run NASA MCP server (in a separate terminal)
+npx -y @programcomputer/nasa-mcp-server@latest
+```
+
+**Option 2: Manual NASA MCP Server Installation**
+```bash
+# Clone NASA MCP server repository
+git clone https://github.com/ProgramComputer/NASA-MCP-server.git
+cd NASA-MCP-server
+
+# Install dependencies
+npm install
+
+# Start server with your API key
+NASA_API_KEY=your_api_key_here npm start
+```
+
+The NASA MCP server will run on `http://localhost:3000` by default.
 
 The automated installer provides:
 - ✅ System requirements validation
@@ -192,12 +240,13 @@ npm run serve
 
 ## Usage
 
-1. **Launch the application**: Open in web browser (typically http://localhost:5176)
+### Mathematical Visualization Mode
 
-2. **3D Visualization Modes**: Use the "3D Visualization" → "Rendering Mode" dropdown:
+1. **Launch the application**: Open in web browser (typically http://localhost:5173)
+
+2. **3D Visualization Modes**: Use the "Visualization" → "Render Mode" dropdown:
    - **Points**: Individual particles showing trajectory samples
    - **Line**: Connected path revealing spiral structure (Recommended)
-   - **Tube**: Volumetric 3D tube with variable thickness
 
 3. **Interactive 3D Navigation**: 
    - **Mouse drag**: Rotate view in 3D space
@@ -205,22 +254,47 @@ npm run serve
    - **Auto-rotate**: Toggle automatic rotation
    - **Reset Camera**: Return to default viewing angle
 
-4. **Lighting Controls**: Adjust lighting for optimal 3D perception:
-   - **Ambient Light**: Overall illumination (0.0 - 1.0)
-   - **Main Light**: Directional lighting intensity (0.0 - 2.0)
-   - **Light Position**: X, Y, Z coordinates for light direction
-
-5. **Quick Start with Presets**: Use the Presets dropdown to explore different configurations:
+4. **Quick Start with Presets**: Use the Presets dropdown to explore different configurations:
    - **Default Cathedral**: Balanced harmonic parameters
    - **Harmonic Resonance**: Strong resonance effects  
    - **Chaotic Spiral**: Complex, unpredictable patterns
    - **Gentle Waves**: Smooth, flowing trajectories
    - **Mathematical Beauty**: Golden ratio inspired parameters
 
-6. **Fine-tune parameters**: Use the GUI controls to adjust:
+5. **Fine-tune parameters**: Use the GUI controls to adjust:
    - **Alpha, Beta, Gamma**: Control velocity damping and coupling strength
    - **Omega**: Adjust primary oscillation frequency
    - **Eta, Theta**: Modify modulation characteristics
+
+### NASA Data Visualization Mode 🚀
+
+6. **Set up NASA MCP server**: Ensure NASA MCP server is running (see Installation section)
+
+7. **Connect to NASA data**: 
+   - Open "NASA Data Visualization" folder in GUI
+   - Configure "MCP Server URL" (default: http://localhost:3000)
+   - Click "Connect to NASA Server" to test connection
+
+8. **Select data source**: Choose from dropdown:
+   - **APOD**: Astronomy Picture of the Day
+   - **Mars**: Mars rover photos and mission data
+   - **Asteroids**: Near Earth Objects and orbital data
+   - **Space Weather**: Solar activity and geomagnetic data
+
+9. **Configure parameters** (based on selected data source):
+   - **APOD Settings**: Specify date (YYYY-MM-DD) or leave blank for today
+   - **Mars Rover Settings**: Choose rover (Curiosity/Opportunity/Spirit) and Sol number
+   - **Asteroid Settings**: Set date range for Near Earth Object tracking
+
+10. **Visualize NASA data**: Click "Fetch & Visualize NASA Data"
+    - System fetches real NASA data via MCP server
+    - Transforms astronomical data into 12D mathematical coordinates
+    - Creates themed visualization (cosmic, Martian, or asteroid field)
+    - Applies specialized materials and animations
+
+11. **Switch between modes**: Seamlessly alternate between mathematical spirals and NASA data
+    - "Clear NASA Visualization" removes NASA data and returns to mathematical mode
+    - Both systems share the same 3D scene and controls
    - **Delta**: Control harmonic decay rates
 
 7. **Advanced Settings**: Expand the Advanced Settings folder for:

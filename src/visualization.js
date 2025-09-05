@@ -158,6 +158,11 @@ export function animate(scene, camera, renderer, spiral, controls, modeManager =
     if (modeManager && modeManager.updateShaderAnimation) {
       modeManager.updateShaderAnimation();
     }
+
+    // Update NASA visualization animations
+    if (window.gui && window.gui.nasaVizModes) {
+      window.gui.nasaVizModes.updateNASAAnimation();
+    }
     
     // Update spiral geometry if data exists (this is typically static, but kept for dynamic updates)
     if (spiral && spiral.userData && spiral.userData.X && spiral.geometry && spiral.geometry.attributes && spiral.geometry.attributes.position) {
